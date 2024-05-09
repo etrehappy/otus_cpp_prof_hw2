@@ -85,10 +85,9 @@ jobs:
         draft: false
         prerelease: false
 
-    - name: Upload Release Asset Debian
-      if: ${{ success() }}
-      if: matrix.os == 'ubuntu-latest'
-      id: upload-release-asset
+    - name: Upload Release Asset Ubuntu
+      if: ${{ success() && matrix.os == 'ubuntu-latest' }}    
+      id: upload-release-asset-ubuntu
       uses: actions/upload-release-asset@v1
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
@@ -99,9 +98,8 @@ jobs:
         asset_content_type: application/vnd.debian.binary-package
 
     - name: Upload Release Asset Windows
-      if: ${{ success() }}
-      if: matrix.os == 'windows-latest'
-      id: upload-release-asset
+      if: ${{ success() && matrix.os == 'windows-latest' }}
+      id: upload-release-asset-windows
       uses: actions/upload-release-asset@v1
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
@@ -112,9 +110,8 @@ jobs:
         asset_content_type: application/x-msdownload
 
     - name: Upload Release Asset MacOS
-      if: ${{ success() }}
-      if: matrix.os == 'macos-latest'
-      id: upload-release-asset
+      if: ${{ success() && matrix.os == 'macos-latest' }}     
+      id: upload-release-asset-macos
       uses: actions/upload-release-asset@v1
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
