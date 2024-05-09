@@ -1,8 +1,4 @@
-#include <cassert>
-#include <cstdlib>
-#include <iostream>
-#include <string>
-#include <vector>
+#include "ip_filter.h"
 
 // ("",  '.') -> [""]
 // ("11", '.') -> ["11"]
@@ -10,9 +6,17 @@
 // ("11.", '.') -> ["11", ""]
 // (".11", '.') -> ["", "11"]
 // ("11.22", '.') -> ["11", "22"]
-std::vector<std::string> split(const std::string &str, char d)
+
+using vec_strings = std::vector<std::string>;
+
+vec_strings split(const std::string &str, char d)
 {
-    std::vector<std::string> r;
+    vec_strings r;
+
+    if (str.empty()) 
+    {
+        return r;
+    }
 
     std::string::size_type start = 0;
     std::string::size_type stop = str.find_first_of(d);
@@ -29,33 +33,78 @@ std::vector<std::string> split(const std::string &str, char d)
     return r;
 }
 
-int main(int argc, char const *argv[])
+
+void SortIp(std::vector<vec_strings>& ip_pool)
+{
+    for (int i = static_cast<int>(ip_pool.front().size()) - 1; i >= 0; i--)
+    {
+        std::stable_sort(ip_pool.begin(), ip_pool.end(),
+            [i](const vec_strings& l, const vec_strings& r) {
+                return std::stoi(l.at(i)) > std::stoi(r.at(i));
+            });
+    }
+}
+
+bool IsFirstEqualOne(const vec_strings& ip)
+{
+    return std::stoi(ip.at(0)) == 1;
+}
+
+bool IsFirstEqual46AndSecondEqual70(const vec_strings& ip)
+{
+    return (std::stoi(ip.at(0)) == 46 &&
+        std::stoi(ip.at(1)) == 70);
+}
+
+bool IsAny46(const vec_strings& ip)
+{
+    return std::any_of(
+        ip.cbegin(), 
+        ip.cend(),
+        [](const std::string& p) { return std::stoi(p) == 46; });
+}
+
+void Print(const vec_strings& ip)
+{    
+    for (auto ip_part = ip.cbegin(); ip_part != ip.cend(); ++ip_part)
+    {
+        if (ip_part != ip.cbegin())
+        {
+            std::cout << ".";
+        }
+        std::cout << *ip_part;
+    }
+    std::cout << std::endl;     
+}
+
+static void FilterAndPrint(const std::vector<vec_strings>& ip_pool, bool (*funcPtr)(const vec_strings&))
+{
+    std::for_each(ip_pool.begin(), ip_pool.end(), [funcPtr](const vec_strings& ip)
+        {
+            if (funcPtr(ip))
+            {
+                Print(ip);
+            }
+        });
+}
+
+void IpFilter()
 {
     try
     {
-        std::vector<std::vector<std::string> > ip_pool;
+        std::vector<vec_strings > ip_pool;
 
         for(std::string line; std::getline(std::cin, line);)
         {
-            std::vector<std::string> v = split(line, '\t');
+            vec_strings v = split(line, '\t');
             ip_pool.push_back(split(v.at(0), '.'));
         }
 
         // TODO reverse lexicographically sort
 
-        for(std::vector<std::vector<std::string> >::const_iterator ip = ip_pool.cbegin(); ip != ip_pool.cend(); ++ip)
-        {
-            for(std::vector<std::string>::const_iterator ip_part = ip->cbegin(); ip_part != ip->cend(); ++ip_part)
-            {
-                if (ip_part != ip->cbegin())
-                {
-                    std::cout << ".";
+        SortIp(ip_pool);
 
-                }
-                std::cout << *ip_part;
-            }
-            std::cout << std::endl;
-        }
+        std::for_each(ip_pool.begin(), ip_pool.end(), Print);
 
         // 222.173.235.246
         // 222.130.177.64
@@ -68,6 +117,8 @@ int main(int argc, char const *argv[])
         // TODO filter by first byte and output
         // ip = filter(1)
 
+        FilterAndPrint(ip_pool, IsFirstEqualOne);
+
         // 1.231.69.33
         // 1.87.203.225
         // 1.70.44.170
@@ -77,6 +128,8 @@ int main(int argc, char const *argv[])
         // TODO filter by first and second bytes and output
         // ip = filter(46, 70)
 
+        FilterAndPrint(ip_pool, IsFirstEqual46AndSecondEqual70);
+
         // 46.70.225.39
         // 46.70.147.26
         // 46.70.113.73
@@ -84,6 +137,8 @@ int main(int argc, char const *argv[])
 
         // TODO filter by any byte and output
         // ip = filter_any(46)
+
+        FilterAndPrint(ip_pool, IsAny46);
 
         // 186.204.34.46
         // 186.46.222.194
@@ -124,6 +179,4 @@ int main(int argc, char const *argv[])
     {
         std::cerr << e.what() << std::endl;
     }
-
-    return 0;
 }
