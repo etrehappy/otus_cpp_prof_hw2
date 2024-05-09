@@ -98,7 +98,7 @@ jobs:
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       with:
-        upload_url: ${{ steps.create_release.outputs.upload_url }}
+        upload_url: ${{ needs.create_release.outputs.upload_url }}
         asset_path: ${{ steps.strings.outputs.build-output-dir }}/ip_filter
         asset_name: ip_filter-${{ matrix.os }}-0.0.${{ github.run_number }}
         asset_content_type: application/vnd.debian.binary-package
@@ -110,7 +110,7 @@ jobs:
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       with:
-        upload_url: ${{ steps.create_release.outputs.upload_url }}
+        upload_url: ${{ needs.create_release.outputs.upload_url }}
         asset_path: ${{ steps.strings.outputs.build-output-dir }}/Release/ip_filter.exe
         asset_name: ip_filter-${{ matrix.os }}-0.0.${{ github.run_number }}.exe
         asset_content_type: application/x-msdownload
@@ -122,7 +122,7 @@ jobs:
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       with:
-        upload_url: ${{ steps.create_release.outputs.upload_url }}
+        upload_url: ${{ needs.create_release.outputs.upload_url }}
         asset_path: ${{ steps.strings.outputs.build-output-dir }}/ip_filter
         asset_name: ip_filter-${{ matrix.os }}-0.0.${{ github.run_number }}
         asset_content_type: application/octet-stream
