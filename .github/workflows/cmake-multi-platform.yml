@@ -8,7 +8,25 @@ on:
    # branches: [ "main" ]
 
 jobs:
+  create_release:
+    name: Create release
+    runs-on: ubuntu-latest
+    outputs:
+      upload_url: ${{ steps.create_release.outputs.upload_url }}
+    steps:
+      - name: Create release
+        id: create_release
+        uses: actions/create-release@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          tag_name: ${{ github.run_number }}
+          release_name: Release ${{ github.run_number }}
+          draft: false
+          prerelease: false
+  
   build:
+    needs: create_release
     runs-on: ${{ matrix.os }}
 
     strategy:
@@ -71,19 +89,7 @@ jobs:
     
     - name: CheckMd5sum
       run: cat ${{ github.workspace }}/src/ip_filter.tsv | ${{ steps.strings.outputs.build-output-dir }}/ip_filter | md5sum 
-      if: matrix.os == 'ubuntu-latest'
-      
-    - name: Create Release
-      if: ${{ success()}}    
-      id: create_release
-      uses: actions/create-release@v1
-      env:
-        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-      with:
-        tag_name: ${{ github.run_number }}
-        release_name: Release ${{ github.run_number }}
-        draft: false
-        prerelease: false
+      if: matrix.os == 'ubuntu-latest'        
         
     - name: Upload Release Asset Ubuntu
       if: ${{ success() && matrix.os == 'ubuntu-latest' }}    
