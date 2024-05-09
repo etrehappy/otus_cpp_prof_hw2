@@ -54,11 +54,12 @@ TEST_F(SplitTestF, splite_empty_string)
 ////////////////////////////////////////////////////////////////////////////////
 struct SortTestF : public testing::Test
 {
-    //arrange  
-    std::vector<vec_strings> ip_pool{};
-    vec_strings vector1{"1", "1", "234", "8"};
-    vec_strings vector2{"222","82","198","61"};
-    vec_strings vector3{"222","173","235","246"};  
+    //arrange      
+    const vec_strings vector1{"1", "1", "234", "8"};
+    const vec_strings vector2{"222","82","198","61"};
+    const vec_strings vector3{"222","173","235","246"};
+
+    std::vector<vec_strings> ip_pool{vector1, vector2, vector3};
 };
 
 TEST_F(SortTestF, reverse_lexicographically_sort)
