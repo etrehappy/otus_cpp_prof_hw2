@@ -86,10 +86,8 @@ jobs:
         prerelease: false
 
     - name: List files in the repository
-      run: |
-        curl -H "Authorization: token ${{ secrets.GITHUB_TOKEN }}" \
-        -H "Accept: application/vnd.github.v3+json" \
-        https://api.github.com/repos/${{ github.repository }}/releases/${{ steps.create_release.outputs.id }}/assets
+      working-directory: ${{ steps.strings.outputs.build-output-dir }}
+      run: ls
 
     - name: Upload Release Asset Ubuntu
       if: ${{ success() && matrix.os == 'ubuntu-latest' }}    
